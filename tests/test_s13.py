@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "module01"))
-from vision_utils import (KYC_JSON_SCHEMA, KycRecord, SAMPLE_DIR, encode_image, extract_validated,  # noqa: E402
-                          find_vision_model, level3_schema, parse_and_validate, sample_transcript,
-                          strip_fences, vision_messages)
+from vision_utils import (KYC_JSON_SCHEMA, KycRecord, SAMPLE_DIR, TRANSCRIBE_PROMPT, compare_to_truth,  # noqa: E402
+                          encode_image, extract_validated, find_vision_model, level3_schema, parse_and_validate,
+                          sample_transcript, strip_fences, vision_messages)
 
 GOOD = '{"document_type":"id_card","full_name":"ANANYA RAO VEMULA","date_of_birth":"1994-03-14","id_number":"ABCDE1234F","address":null}'
 
@@ -152,3 +152,23 @@ def test_live_vision_reads_the_clean_id_card_if_a_vision_model_exists():
         pytest.skip("no vision model offered by this provider")
     text = read_image_text(client, vm, SAMPLE_DIR / "doc1_id_card.png")["text"].upper()
     assert "ABCDE1234F" in text.replace(" ", "")
+
+
+# ---------------------------------------------------------------- compare a reading with the saved truth
+def test_compare_to_truth_all_match_ignores_case_spacing_and_missing_labels():
+    truth = sample_transcript("doc3_messy_scan")
+    reading = "sample identity card\nMeera  Iyer\n09/11/1988\nPQRST5678Z\nSAMPLE - NOT A REAL DOCUMENT"
+    assert all(ok for _line, ok in compare_to_truth(reading, truth))
+
+
+def test_compare_to_truth_flags_a_single_misread_character():
+    truth = sample_transcript("doc3_messy_scan")
+    reading = truth.replace("PQRST5678Z", "PQRST56782")
+    results = dict(compare_to_truth(reading, truth))
+    assert results["ID NUMBER: PQRST5678Z"] is False
+    assert results["FULL NAME: MEERA IYER"] is True
+
+
+def test_the_cost_comparison_and_the_real_read_share_one_prompt():
+    msgs = vision_messages(TRANSCRIBE_PROMPT, SAMPLE_DIR / "doc1_id_card.png")
+    assert msgs[-1]["content"][0]["text"] == TRANSCRIBE_PROMPT
