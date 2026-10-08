@@ -1,45 +1,63 @@
-# Showcase A3 — Healthcare (row A: workflow)
+# ⚙️ Enterprise LLM Infrastructure & Agentic Workflows
 
-Part of the course's 4x4 showcase matrix: row A (workflow — the **code** decides the steps), column Healthcare.
+**Maintainer:** Anurag Sharma  
+**Focus:** Process Optimization, LLM Deployment Economics, and Agentic Routing
 
-```
-safety rule  ->  intent router  ->  slot filling  ->  booking  ->  confirmation
- (code)          (model reads)      (model reads,      (code)        (template)
-                                     CODE decides
-                                     what to ask next)
-```
+## 📌 Executive Overview
+This repository contains technical audits, benchmarks, and prototype deployments of Large Language Models (LLMs) and agentic frameworks. The objective is to bridge the gap between raw data science concepts and operational business strategy by evaluating model deployment costs, latency trade-offs, vector embeddings, and deterministic routing logic for enterprise use cases.
 
-A patient messages a clinic's booking assistant. The model does exactly two jobs, both of them *reading*:
-which intent is this message, and which appointment details did the patient mention? Everything else
-is code: the order of the questions, when enough is known, the availability lookup, the confirmation text —
-and a safety rule that runs **before any model is called**.
+## 🛠️ Core Competencies & Tech Stack
+* **LLM Orchestration & APIs:** Groq, Google Gemini, Ollama (Local open-weight models).
+* **Process Analysis:** Evaluating Time to First Token (TTFT), Tokens per Second (TPS), and quantization hardware constraints.
+* **Agentic Frameworks:** Intent classification, multi-provider routing, and deterministic tool calling.
+* **Tech Stack:** Python, `uv` (dependency management), NumPy, Matplotlib, `tiktoken`.
 
-That ownership is the lesson. Compare row B (`showcase/b3_healthcare`, from Session 29), where the model itself
-chooses what to do next on the same kind of problem.
+---
 
-> **Mock data only.** Invented doctors, invented patients. This is not medical advice and not a triage tool;
-> the emergency rule exists to demonstrate a code-owned safety check.
+## 📊 Analytical Deep Dives & Benchmarks
 
-## Files
+### 1. Tokenomics, Pricing Overheads, & Context Constraints (Session 09)
+* **Objective:** Audit the hidden costs of LLM API usage and memory limitations.
+* **Business Impact:** Identified a severe "Non-English Token Penalty"—regional languages (e.g., Telugu) consume exponentially more tokens than English, heavily inflating API costs. Proved via 20-turn conversation simulations that developers must actively build sliding memory windows to prevent breaking the 8,192-token context limit in production.
+* **File:** `llm/s09_tokens.ipynb`
 
-| File | What it is |
-|---|---|
-| `appointments_data.py` | Mock availability, the emergency keyword list, and seven scripted patient conversations. |
-| `appointment_flow.py` | `classify` and `extract` (the only two model calls), `next_missing` / `find_slot` / `has_emergency` (plain code), `run_dialogue` (the whole workflow in order). |
-| `test_a3_healthcare.py` | 15 offline tests using a keyword stand-in for the model, plus one live test that skips without a key. |
+### 2. Deployment Landscape Matrix & Cost-Benefit Analysis (Session 10)
+* **Objective:** Route LLMs based on hard constraints (data privacy, latency) and operational costs.
+* **Business Impact:** Built a weighted selection matrix for three workloads (Public FAQ, PII Document Analysis, Live Agent Assist). Demonstrated that handling Customer PII requires sacrificing cloud API speed for localized, open-weight GPU deployments to maintain data sovereignty, while public FAQs can be routed to highly cost-efficient cloud models instead of overpriced flagship tiers.
+* **File:** `llm/s10_model_matrix.ipynb`
 
-## Run it
+### 3. Multi-Provider Routing & Stochastic Variance Control (Session 11)
+* **Objective:** Evaluate the risk of stochastic sampling on deterministic business logic.
+* **Business Impact:** Conducted a temperature sweep (0.0 to 1.0) on ambiguous support tickets. Proved that any LLM deployed for intent routing or structured data extraction must be strictly locked to `temperature=0.0` to prevent downstream pipeline failures caused by label drift.
+* **File:** `llm/s11_providers.ipynb`
 
-```powershell
-uv run python showcase/a3_healthcare/appointment_flow.py                      # happy_path
-uv run python showcase/a3_healthcare/appointment_flow.py --scenario emergency
-uv run python showcase/a3_healthcare/appointment_flow.py --all
-uv run pytest showcase/a3_healthcare/test_a3_healthcare.py                    # checkpoint
-```
+### 4. Local Compute Constraints & Quantization Economics (Session 12)
+* **Objective:** Benchmark the feasibility of running open-weight LLMs on consumer hardware.
+* **Business Impact:** Quantified the necessity of INT4 precision compression to fit 20B+ parameter models into standard VRAM budgets. Benchmarked local throughput against hosted APIs, concluding that local deployments are optimal for asynchronous data pipelines (like document reading) but introduce too much TTFT latency for live conversational UI.
+* **File:** `llm/s12_local_models.ipynb`
 
-## What to watch for
+### 5. Multimodal ETL & OCR Validation Routing (Session 13)
+* **Objective:** Design a deterministic processing pipeline that ingests raw image scans (e.g., Identity Documents) using Vision models and extracts strictly validated JSON records.
+* **Business Impact:** Demonstrated that multimodal image processing exponentially increases API token costs, necessitating batch-processing architectures for high-volume pipelines. Proved that while LLM JSON schemas guarantee syntactic structure, factual accuracy and conditional business rules (e.g., date logic, document types) must be enforced by deterministic code (Pydantic). Established the absolute necessity of Human-in-the-Loop exception routing for failed OCR reads rather than relying on endless, token-burning AI retries.
+* **File:** `llm/s13_vision_structured.ipynb`
 
-- The **`[router -> ...]` and `[slots -> ...]`** lines are the model's work. Everything labelled `bot:` is a template or a code decision.
-- Run `--scenario emergency`: the reply appears and **no model call is made at all**. A safety rule the model can't talk its way around.
-- Run `--scenario all_in_one`: one message fills every slot, so the code skips straight to booking. The *model* extracted four facts; the *code* noticed nothing was missing.
-- Run `--scenario no_matching_slot`: the code offers real alternatives. It cannot invent a slot, because the availability table is code, not language.
+---
+
+## ⚙️ Execution & Reproduction
+
+This workspace relies on `uv` for lightning-fast dependency synchronization. 
+
+```bash
+# Clone the repository
+git clone [https://github.com/Anurag-0905/genai-agents-course.git](https://github.com/Anurag-0905/genai-agents-course.git)
+cd genai-agents-course
+
+# Sync dependencies
+uv sync
+
+# Set up environment variables for API routing
+cp .env.example .env
+# Edit .env with your specific GROQ_API_KEY and GEMINI_API_KEY
+
+# Launch the Jupyter Lab environment
+uv run jupyter lab
