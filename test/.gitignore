@@ -1,0 +1,5 @@
+# Never commit secrets or machine-specific files
+.env
+.venv/
+__pycache__/
+.ipynb_checkpoints/

@@ -4,7 +4,7 @@
 **Focus:** Process Optimization, LLM Deployment Economics, and Agentic Routing
 
 ## 📌 Executive Overview
-This repository contains technical audits, benchmarks, and prototype deployments of Large Language Models (LLMs) and agentic frameworks. The objective is to bridge the gap between raw data science concepts and operational business strategy by evaluating model deployment costs, latency trade-offs, vector embeddings, and deterministic routing logic for enterprise use cases.
+This repository contains my technical audits, benchmarks, and prototype deployments of Large Language Models (LLMs) and agentic frameworks. My objective is to bridge the gap between raw data science concepts and operational business strategy by evaluating model deployment costs, latency trade-offs, vector embeddings, and deterministic routing logic for enterprise pipelines.
 
 ## 🛠️ Core Competencies & Tech Stack
 * **LLM Orchestration & APIs:** Groq, Google Gemini, Ollama (Local open-weight models).
@@ -17,24 +17,34 @@ This repository contains technical audits, benchmarks, and prototype deployments
 ## 📊 Analytical Deep Dives & Benchmarks
 
 ### 1. Tokenomics, Pricing Overheads, & Context Constraints (Session 09)
-* **Objective:** Audit the hidden costs of LLM API usage and memory limitations.
-* **Business Impact:** Identified a severe "Non-English Token Penalty"—regional languages (e.g., Telugu) consume exponentially more tokens than English, heavily inflating API costs. Proved via 20-turn conversation simulations that developers must actively build sliding memory windows to prevent breaking the 8,192-token context limit in production.
-* **File:** `module01/s09_tokens.ipynb`
+* **Objective:** I audited the hidden costs of LLM API usage and memory limitations.
+* **Business Impact:** I identified a severe "Non-English Token Penalty"—regional languages (e.g., Telugu) consume exponentially more tokens than English, heavily inflating our API costs. I proved via 20-turn conversation simulations that developers must actively build sliding memory windows to prevent breaking the 8,192-token context limit in production.
+* **File:** `llm/s09_tokens.ipynb`
 
 ### 2. Deployment Landscape Matrix & Cost-Benefit Analysis (Session 10)
-* **Objective:** Route LLMs based on hard constraints (data privacy, latency) and operational costs.
-* **Business Impact:** Built a weighted selection matrix for three workloads (Public FAQ, PII Document Analysis, Live Agent Assist). Demonstrated that handling Customer PII requires sacrificing cloud API speed for localized, open-weight GPU deployments to maintain data sovereignty, while public FAQs can be routed to highly cost-efficient cloud models instead of overpriced flagship tiers.
-* **File:** `module01/s10_model_matrix.ipynb`
+* **Objective:** I routed LLMs based on hard constraints (data privacy, latency) and operational costs.
+* **Business Impact:** I built a weighted selection matrix for three workloads (Public FAQ, PII Document Analysis, Live Agent Assist). I demonstrated that handling Customer PII requires sacrificing cloud API speed for localized, open-weight GPU deployments to maintain data sovereignty, while public FAQs can be routed to highly cost-efficient cloud models instead of overpriced flagship tiers.
+* **File:** `llm/s10_model_matrix.ipynb`
 
 ### 3. Multi-Provider Routing & Stochastic Variance Control (Session 11)
-* **Objective:** Evaluate the risk of stochastic sampling on deterministic business logic.
-* **Business Impact:** Conducted a temperature sweep (0.0 to 1.0) on ambiguous support tickets. Proved that any LLM deployed for intent routing or structured data extraction must be strictly locked to `temperature=0.0` to prevent downstream pipeline failures caused by label drift.
-* **File:** `module01/s11_providers.ipynb`
+* **Objective:** I evaluated the risk of stochastic sampling on deterministic business logic.
+* **Business Impact:** I conducted a temperature sweep (0.0 to 1.0) on ambiguous support tickets. I proved that any LLM deployed for intent routing or structured data extraction must be strictly locked to `temperature=0.0` to prevent downstream pipeline failures caused by label drift.
+* **File:** `llm/s11_providers.ipynb`
 
 ### 4. Local Compute Constraints & Quantization Economics (Session 12)
-* **Objective:** Benchmark the feasibility of running open-weight LLMs on consumer hardware.
-* **Business Impact:** Quantified the necessity of INT4 precision compression to fit 20B+ parameter models into standard VRAM budgets. Benchmarked local throughput against hosted APIs, concluding that local deployments are optimal for asynchronous data pipelines (like document reading) but introduce too much TTFT latency for live conversational UI.
-* **File:** `module01/s12_local_models.ipynb`
+* **Objective:** I benchmarked the feasibility of running open-weight LLMs on consumer hardware.
+* **Business Impact:** I quantified the necessity of INT4 precision compression to fit 20B+ parameter models into standard VRAM budgets. I benchmarked local throughput against hosted APIs, concluding that local deployments are optimal for asynchronous data pipelines (like document reading) but introduce too much TTFT latency for live conversational UI.
+* **File:** `llm/s12_local_models.ipynb`
+
+### 5. Multimodal ETL & OCR Validation Routing (Session 13)
+* **Objective:** I designed a deterministic processing pipeline that ingests raw image scans (e.g., Identity Documents) using Vision models and extracts strictly validated JSON records.
+* **Business Impact:** I demonstrated that multimodal image processing exponentially increases API token costs, necessitating batch-processing architectures for high-volume pipelines. I proved that while LLM JSON schemas guarantee syntactic structure, factual accuracy and conditional business rules (e.g., date logic, document types) must be enforced by deterministic code (Pydantic). I established the absolute necessity of Human-in-the-Loop exception routing for failed OCR reads rather than relying on endless, token-burning AI retries.
+* **File:** `llm/s13_vision_structured.ipynb`
+
+### 6. Prompt Architecture & Deterministic Constraints (Session 14)
+* **Objective:** I audited prompt structures to maximize deterministic reliability while minimizing computational waste.
+* **Business Impact:** I demonstrated how separating immutable instructions into the `System` message preserves prefix caching, drastically lowering latency and API costs. I proved that few-shot examples act as a necessary token tax to lock in syntactic formats and protect downstream parsers. I highlighted the risks of reasoning drift in prompts that attempt simultaneous arithmetic and conditional routing, necessitating independent code-based mathematical validation.
+* **File:** `prompting/s14_prompt_anatomy.ipynb`
 
 ---
 
