@@ -45,30 +45,7 @@ This repository contains my technical audits, benchmarks, and prototype deployme
 * **Objective:** I audited prompt structures to maximize deterministic reliability while minimizing computational waste.
 * **Business Impact:** I demonstrated how separating immutable instructions into the `System` message preserves prefix caching, drastically lowering latency and API costs. I proved that few-shot examples act as a necessary token tax to lock in syntactic formats and protect downstream parsers. I highlighted the risks of reasoning drift in prompts that attempt simultaneous arithmetic and conditional routing, necessitating independent code-based mathematical validation.
 * **File:** `prompting/s14_prompt_anatomy.ipynb`
-=======
-* **Objective:** Audit the hidden costs of LLM API usage and memory limitations.
-* **Business Impact:** Identified a severe "Non-English Token Penalty"—regional languages (e.g., Telugu) consume exponentially more tokens than English, heavily inflating API costs. Proved via 20-turn conversation simulations that developers must actively build sliding memory windows to prevent breaking the 8,192-token context limit in production.
-* **File:** `llm/s09_tokens.ipynb`
 
-### 2. Deployment Landscape Matrix & Cost-Benefit Analysis (Session 10)
-* **Objective:** Route LLMs based on hard constraints (data privacy, latency) and operational costs.
-* **Business Impact:** Built a weighted selection matrix for three workloads (Public FAQ, PII Document Analysis, Live Agent Assist). Demonstrated that handling Customer PII requires sacrificing cloud API speed for localized, open-weight GPU deployments to maintain data sovereignty, while public FAQs can be routed to highly cost-efficient cloud models instead of overpriced flagship tiers.
-* **File:** `llm/s10_model_matrix.ipynb`
-
-### 3. Multi-Provider Routing & Stochastic Variance Control (Session 11)
-* **Objective:** Evaluate the risk of stochastic sampling on deterministic business logic.
-* **Business Impact:** Conducted a temperature sweep (0.0 to 1.0) on ambiguous support tickets. Proved that any LLM deployed for intent routing or structured data extraction must be strictly locked to `temperature=0.0` to prevent downstream pipeline failures caused by label drift.
-* **File:** `llm/s11_providers.ipynb`
-
-### 4. Local Compute Constraints & Quantization Economics (Session 12)
-* **Objective:** Benchmark the feasibility of running open-weight LLMs on consumer hardware.
-* **Business Impact:** Quantified the necessity of INT4 precision compression to fit 20B+ parameter models into standard VRAM budgets. Benchmarked local throughput against hosted APIs, concluding that local deployments are optimal for asynchronous data pipelines (like document reading) but introduce too much TTFT latency for live conversational UI.
-* **File:** `llm/s12_local_models.ipynb`
-
-### 5. Multimodal ETL & OCR Validation Routing (Session 13)
-* **Objective:** Design a deterministic processing pipeline that ingests raw image scans (e.g., Identity Documents) using Vision models and extracts strictly validated JSON records.
-* **Business Impact:** Demonstrated that multimodal image processing exponentially increases API token costs, necessitating batch-processing architectures for high-volume pipelines. Proved that while LLM JSON schemas guarantee syntactic structure, factual accuracy and conditional business rules (e.g., date logic, document types) must be enforced by deterministic code (Pydantic). Established the absolute necessity of Human-in-the-Loop exception routing for failed OCR reads rather than relying on endless, token-burning AI retries.
-* **File:** `llm/s13_vision_structured.ipynb`
 ---
 
 ## ⚙️ Execution & Reproduction
