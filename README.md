@@ -69,8 +69,6 @@ This repository contains my technical audits, benchmarks, and prototype deployme
 * **Objective:** Design a deterministic processing pipeline that ingests raw image scans (e.g., Identity Documents) using Vision models and extracts strictly validated JSON records.
 * **Business Impact:** Demonstrated that multimodal image processing exponentially increases API token costs, necessitating batch-processing architectures for high-volume pipelines. Proved that while LLM JSON schemas guarantee syntactic structure, factual accuracy and conditional business rules (e.g., date logic, document types) must be enforced by deterministic code (Pydantic). Established the absolute necessity of Human-in-the-Loop exception routing for failed OCR reads rather than relying on endless, token-burning AI retries.
 * **File:** `llm/s13_vision_structured.ipynb`
->>>>>>> ebba6033d83e89e670047537f4c088291cc667a8
-
 ---
 
 ## ⚙️ Execution & Reproduction
